@@ -1,10 +1,22 @@
 package com.example.todo;
 
+import org.hibernate.Session;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.hibernate.cfg.Configuration;
+
+import com.example.todo.Model.ToDoItem;
+
 import java.sql.*;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.List;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.EntityTransaction;
+import javax.persistence.Persistence;
+import javax.persistence.Query;
 
 @SpringBootApplication
 public class TodoApplication {
@@ -15,18 +27,30 @@ public class TodoApplication {
 		Statement stmt = null;
 		ResultSet rs = null;
 
-		try {
-		conn =
-			DriverManager.getConnection("jdbc:mysql://raspberrypi/remote?" +
-										"user=remote&password=remote");
+			EntityManagerFactory emf = Persistence.createEntityManagerFactory("MyPersistenceUnit");
+			EntityManager em = emf.createEntityManager();
+			EntityTransaction tx = em.getTransaction();
+			tx.begin();
 
-		// Do something with the Connection
-		stmt = conn.createStatement();
-		rs = stmt.executeQuery("SELECT * FROM toDoList");
+			//query.setParameter("*", "toDoList");
+			List<ToDoItem> employees = em.createQuery("FROM ToDoItem", ToDoItem.class).getResultList();
 
+			for (ToDoItem e : employees) {
+				System.out.println(e.getTask_description());
+			}
+
+			tx.commit();
+			em.close();
+			emf.close();
+	
+	
+		
 		// or alternatively, if you don't know ahead of time that
 		// the query will be a SELECT...
-
+/*
+ * 
+ * 
+ 
 		if (stmt.execute("SELECT * FROM toDoList")) {
 			rs = stmt.getResultSet();
 
@@ -38,14 +62,9 @@ public class TodoApplication {
 				System.out.println("ID: " + id + ", Name: " + name + ", task_description: " + task_description);
 			  }
     }
-
+*/
 		
-		} catch (SQLException ex) {
-		// handle any errors
-		System.out.println("SQLException: " + ex.getMessage());
-		System.out.println("SQLState: " + ex.getSQLState());
-		System.out.println("VendorError: " + ex.getErrorCode());
-		}
+
 
 	}
 
